@@ -1669,4 +1669,12 @@
   exports.compile = compile;
   exports.search = search;
   exports.strictDeepEqual = strictDeepEqual;
+
+  exports.Runtime = Runtime;
+  exports.Interpreter = TreeInterpreter;
+  exports.FunctionTypes = {
+      NUMBER : TYPE_NUMBER,
+      ANY : TYPE_ANY
+    }
+
 })(typeof exports === "undefined" ? this.jmespath = {} : exports);
