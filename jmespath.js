@@ -1206,6 +1206,19 @@
   }
 
   Runtime.prototype = {
+    types: {
+      NUMBER : TYPE_NUMBER,
+      ANY : TYPE_ANY,
+      STRING : TYPE_STRING,
+      ARRAY : TYPE_ARRAY,
+      OBJECT : TYPE_OBJECT,
+      BOOLEAN : TYPE_BOOLEAN,
+      EXPREF : TYPE_EXPREF,
+      NULL : TYPE_NULL,
+      ARRAY_NUMBER : TYPE_ARRAY_NUMBER,
+      ARRAY_STRING : TYPE_ARRAY_STRING
+    },
+
     callFunction: function(name, resolvedArgs) {
       var functionEntry = this.functionTable[name];
       if (functionEntry === undefined) {
@@ -1213,6 +1226,13 @@
       }
       this._validateArgs(name, resolvedArgs, functionEntry._signature);
       return functionEntry._func.call(this, resolvedArgs);
+    },
+
+    addFunction: function(name, func, signature) {
+      this.functionTable[name] = {
+        _func: func,
+        _signature: signature
+      }
     },
 
     _validateArgs: function(name, args, signature) {
@@ -1653,6 +1673,19 @@
       return lexer.tokenize(stream);
   }
 
+  function Engine(runtime) {
+      var parser = new Parser();
+      var interpreter = new TreeInterpreter(runtime);
+      runtime._interpreter = interpreter;
+
+      return {
+          search : function(data, expression) {
+              var node = parser.parse(expression);
+              return interpreter.search(node, data);
+          }
+      }
+  }
+
   function search(data, expression) {
       var parser = new Parser();
       // This needs to be improved.  Both the interpreter and runtime depend on
@@ -1669,12 +1702,7 @@
   exports.compile = compile;
   exports.search = search;
   exports.strictDeepEqual = strictDeepEqual;
-
   exports.Runtime = Runtime;
   exports.Interpreter = TreeInterpreter;
-  exports.FunctionTypes = {
-      NUMBER : TYPE_NUMBER,
-      ANY : TYPE_ANY
-    }
-
+  exports.Engine = Engine;
 })(typeof exports === "undefined" ? this.jmespath = {} : exports);
